@@ -9,9 +9,10 @@ from app.core.config import get_settings
 from app.core.error_handlers import register_exception_handlers
 from app.core.logging import configure_logging
 from app.infrastructure.db.base import Base
-from app.infrastructure.db.models import auth  # noqa: F401
+from app.infrastructure.db.models import auth, documents, products  # noqa: F401
 from app.infrastructure.db.session import get_session_local
 from app.services.auth.bootstrap import bootstrap_admin_user
+from app.services.products.bootstrap import bootstrap_product_catalog
 
 
 @asynccontextmanager
@@ -20,6 +21,7 @@ async def lifespan(_: FastAPI):
     _, engine = get_session_local()
     Base.metadata.create_all(bind=engine)
     bootstrap_admin_user()
+    bootstrap_product_catalog()
     yield
 
 

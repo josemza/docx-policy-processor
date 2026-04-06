@@ -35,3 +35,12 @@ test/
 # Zip/exports generados
 *.zip
 *.csv
+
+# Storage local
+storage/
+app.db
+
+# md
+blueprint_mvp_formateador_polizas.md
+plan_ejecucion_sprints_formateador_polizas.md
+sprint_*.md

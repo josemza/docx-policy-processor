@@ -67,3 +67,20 @@ class ResourceNotFoundError(AppError):
         code: str = "resource_not_found",
     ) -> None:
         super().__init__(message=message, code=code, status_code=404)
+
+
+class ValidationAppError(AppError):
+    def __init__(
+        self,
+        message: str = "Los datos suministrados no son validos.",
+        *,
+        code: str = "validation_error",
+        details: object | None = None,
+        status_code: int = 400,
+    ) -> None:
+        super().__init__(
+            message=message,
+            code=code,
+            status_code=status_code,
+            details=details,
+        )

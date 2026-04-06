@@ -25,6 +25,7 @@ class UserModel(Base):
     )
 
     sessions: Mapped[list["UserSessionModel"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    document_operations: Mapped[list["DocumentOperationModel"]] = relationship(back_populates="user")
 
 
 class UserSessionModel(Base):

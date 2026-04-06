@@ -55,6 +55,10 @@ class Settings(BaseSettings):
     auth_bootstrap_admin_username: str = "admin"
     auth_bootstrap_admin_password: str = "admin123"
 
+    documents_max_upload_bytes: int = 10 * 1024 * 1024
+    storage_root_path: str = str(BASE_DIR / "storage")
+    bootstrap_product_catalog: bool = True
+
     @computed_field  # type: ignore[prop-decorator]
     @property
     def database_driver(self) -> str:
@@ -74,6 +78,21 @@ class Settings(BaseSettings):
             f"{self.database_driver}://{self.database_user}:{self.database_password}"
             f"@{self.database_host}:{self.database_port}/{self.database_name}"
         )
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def storage_root(self) -> Path:
+        return Path(self.storage_root_path)
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def documents_originals_path(self) -> Path:
+        return self.storage_root / "documents" / "originals"
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def documents_outputs_path(self) -> Path:
+        return self.storage_root / "documents" / "outputs"
 
 
 @lru_cache
