@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero-panel">
+    <div>
+        <p class="section-label">Shell base</p>
+        <h2>Panel principal listo para crecer por dominios</h2>
+        <p>
+            El shell ya usa sesión persistida en frontend, validación de tokens y una ruta protegida
+            para consultar el usuario autenticado.
+        </p>
+    </div>
+    <div class="hero-panel__actions">
+        <a class="secondary-button" href="/api/v1/health">Ver health check</a>
+        <button class="primary-button" type="button" data-logout-button>Cerrar sesión</button>
+    </div>
+</section>
+
+<section class="grid-panels">
+    <article class="content-card">
+        <p class="section-label">Dominio documental</p>
+        <h3>Módulo pendiente de implementación</h3>
+        <p>
+            Aquí vivirá el flujo de carga, validación, procesamiento DOCX y exportación.
+            En este sprint se habilita la capa de acceso seguro al módulo.
+        </p>
+    </article>
+
+    <article class="content-card">
+        <p class="section-label">Arquitectura</p>
+        <h3>Capas separadas desde el arranque</h3>
+        <ul class="feature-list">
+            <li><strong>API:</strong> transporte HTTP y versionado.</li>
+            <li><strong>Services:</strong> casos de uso y orquestación.</li>
+            <li><strong>Repositories:</strong> persistencia abstracta.</li>
+            <li><strong>Infrastructure:</strong> DB, templates y storage.</li>
+            <li><strong>Core:</strong> config, seguridad y logging.</li>
+        </ul>
+    </article>
+
+    <article class="content-card content-card--wide">
+        <p class="section-label">Sesión actual</p>
+        <h3>Integración frontend vanilla</h3>
+        <p data-session-user>Validando sesión activa...</p>
+    </article>
+</section>
+<script>
+    window.APP_SESSION = { authBaseUrl: "{{ session_api_base }}" };
+</script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="login-card">
+    <div class="login-card__header">
+        <p class="login-card__eyebrow">Acceso interno</p>
+        <h1>Iniciar sesión</h1>
+        <p>Autenticación JWT con renovación silenciosa y logout controlado por backend.</p>
+    </div>
+
+    <form class="login-form" action="#" method="post" data-login-form>
+        <label class="field">
+            <span>Usuario</span>
+            <input type="text" name="username" placeholder="usuario.corporativo" autocomplete="username" required>
+        </label>
+
+        <label class="field">
+            <span>Contraseña</span>
+            <input type="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+        </label>
+
+        <button class="primary-button" type="submit">Entrar</button>
+    </form>
+    <p class="form-feedback" data-login-feedback aria-live="polite"></p>
+
+    <div class="login-card__footer">
+        <span>JWT + PyJWT</span>
+        <span>Argon2</span>
+        <span>FastAPI</span>
+    </div>
+</section>
+{% endblock %}

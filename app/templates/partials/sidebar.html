@@ -1,0 +1,29 @@
+<aside class="sidebar" data-sidebar>
+    <div class="sidebar__brand">
+        <div class="sidebar__logo">FP</div>
+        <div class="sidebar__brand-copy">
+            <strong>Formateador</strong>
+            <span>Prepólizas Word</span>
+        </div>
+    </div>
+
+    <nav class="sidebar__nav" aria-label="Principal">
+        <a class="nav-link {% if active_nav == 'dashboard' %}is-active{% endif %}" href="/app">
+            <span class="nav-link__icon">01</span>
+            <span class="nav-link__label">Panel principal</span>
+        </a>
+        <a class="nav-link is-disabled" href="#" aria-disabled="true">
+            <span class="nav-link__icon">02</span>
+            <span class="nav-link__label">Formatear póliza</span>
+        </a>
+        <a class="nav-link is-disabled" href="#" aria-disabled="true">
+            <span class="nav-link__icon">03</span>
+            <span class="nav-link__label">Trazabilidad</span>
+        </a>
+    </nav>
+
+    <button class="sidebar__toggle" type="button" data-sidebar-toggle aria-label="Colapsar navegación">
+        <span></span>
+        <span></span>
+    </button>
+</aside>

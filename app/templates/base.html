@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} | Formateador de Polizas</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/app.css') }}">
+</head>
+<body class="app-body {% if layout == 'auth' %}auth-layout{% else %}shell-layout{% endif %}">
+    {% set rendered_content %}{% block content %}{% endblock %}{% endset %}
+
+    {% if layout == "shell" %}
+        <div class="shell" data-shell>
+            {% include "partials/sidebar.html" %}
+            <div class="shell__content">
+                {% include "partials/topbar.html" %}
+                <main class="shell__main">
+                    {{ rendered_content | safe }}
+                </main>
+            </div>
+        </div>
+    {% else %}
+        <main class="auth-shell">
+            {{ rendered_content | safe }}
+        </main>
+    {% endif %}
+
+    <script src="{{ url_for('static', path='/js/app.js') }}" defer></script>
+    <script src="{{ url_for('static', path='/js/session.js') }}" defer></script>
+</body>
+</html>
