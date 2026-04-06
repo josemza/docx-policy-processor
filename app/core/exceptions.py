@@ -84,3 +84,19 @@ class ValidationAppError(AppError):
             status_code=status_code,
             details=details,
         )
+
+
+class DocumentProcessingError(AppError):
+    def __init__(
+        self,
+        message: str = "No fue posible procesar el documento.",
+        *,
+        code: str = "document_processing_error",
+        details: object | None = None,
+    ) -> None:
+        super().__init__(
+            message=message,
+            code=code,
+            status_code=422,
+            details=details,
+        )

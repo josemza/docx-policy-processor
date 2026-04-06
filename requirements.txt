@@ -11,3 +11,4 @@ argon2-cffi==25.1.0
 httpx==0.28.1
 pytest==8.4.1
 python-multipart==0.0.20
+python-docx==1.1.2

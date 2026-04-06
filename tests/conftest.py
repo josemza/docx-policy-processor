@@ -1,9 +1,9 @@
 from collections.abc import Generator
 from io import BytesIO
 from pathlib import Path
-from zipfile import ZipFile
 
 import pytest
+from docx import Document
 from fastapi.testclient import TestClient
 
 
@@ -66,10 +66,16 @@ def client() -> Generator[TestClient, None, None]:
                 version=1,
                 configuration_json=json.dumps(
                     {
-                        "page_setup": {"paper_size": "A4"},
+                        "page_setup": {
+                            "paper_size": "A4",
+                            "margin_top_cm": 2.5,
+                            "margin_bottom_cm": 2.5,
+                            "margin_left_cm": 2.0,
+                            "margin_right_cm": 2.0,
+                        },
                         "font_defaults": {"family": "Arial", "size_pt": 10},
-                        "paragraph_defaults": {"line_spacing": 1.15},
-                        "title_rules": {"alignment": "center"},
+                        "paragraph_defaults": {"line_spacing": 1.15, "alignment": "justify"},
+                        "title_rules": {"alignment": "center", "bold": True, "case": "upper"},
                     }
                 ),
                 active=True,
@@ -98,8 +104,21 @@ def auth_headers(client: TestClient) -> dict[str, str]:
 
 @pytest.fixture()
 def sample_docx_bytes() -> bytes:
+    document = Document()
+    section = document.sections[0]
+    section.header.paragraphs[0].text = "Header original"
+    document.add_paragraph("Contenido base de la póliza")
+    table = document.add_table(rows=1, cols=2)
+    table.cell(0, 0).text = "Celda 1"
+    table.cell(0, 1).text = "Celda 2"
+
     buffer = BytesIO()
-    with ZipFile(buffer, "w") as zf:
-        zf.writestr("[Content_Types].xml", "<Types></Types>")
-        zf.writestr("word/document.xml", "<w:document></w:document>")
+    document.save(buffer)
     return buffer.getvalue()
+
+
+@pytest.fixture()
+def settings_obj():
+    from app.core.config import get_settings
+
+    return get_settings()

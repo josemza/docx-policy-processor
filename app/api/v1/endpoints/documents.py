@@ -29,3 +29,19 @@ async def upload_document(
         message="Documento recibido y registrado correctamente.",
         data=DocumentOperationResponse.model_validate(operation).model_dump(),
     )
+
+
+@router.post("/{operation_id}/process")
+async def process_document_operation(
+    operation_id: str,
+    session_context=Depends(get_current_session_context),
+    document_service: DocumentService = Depends(get_document_service),
+) -> dict:
+    operation = document_service.process_operation(
+        operation_id=operation_id,
+        user_id=session_context.user.id,
+    )
+    return success_response(
+        message="Documento formateado correctamente.",
+        data=DocumentOperationResponse.model_validate(operation).model_dump(),
+    )

@@ -14,3 +14,4 @@ class DocumentOperationResponse(BaseModel):
     status: str
     original_path: str
     output_path: str
+    error_message: str | None = None

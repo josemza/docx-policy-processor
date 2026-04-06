@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.domain.documents.entities import DocumentOperation
@@ -63,6 +64,35 @@ class SqlAlchemyDocumentRepository:
             mime_type=mime_type,
             status=status,
         )
+        self.db.add(model)
+        self.db.commit()
+        self.db.refresh(model)
+        return _to_domain(model)
+
+    def get_by_id(self, operation_id: str) -> DocumentOperation | None:
+        model = self.db.get(DocumentOperationModel, operation_id)
+        return _to_domain(model) if model else None
+
+    def get_by_id_for_user(self, operation_id: str, user_id: str) -> DocumentOperation | None:
+        stmt = select(DocumentOperationModel).where(
+            DocumentOperationModel.id == operation_id,
+            DocumentOperationModel.user_id == user_id,
+        )
+        model = self.db.scalar(stmt)
+        return _to_domain(model) if model else None
+
+    def update_status(
+        self,
+        *,
+        operation_id: str,
+        status: str,
+        error_message: str | None = None,
+    ) -> DocumentOperation:
+        model = self.db.get(DocumentOperationModel, operation_id)
+        if model is None:
+            raise ValueError("Operation not found")
+        model.status = status
+        model.error_message = error_message
         self.db.add(model)
         self.db.commit()
         self.db.refresh(model)

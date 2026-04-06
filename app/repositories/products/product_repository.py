@@ -64,6 +64,22 @@ class SqlAlchemyProductRepository:
             return None
         return _to_product(model, self._resolve_active_rule(model.format_rules))
 
+    def get_product_with_rule(self, product_id: str, format_rule_id: str) -> Product | None:
+        stmt = (
+            select(ProductModel)
+            .where(ProductModel.id == product_id)
+            .options(selectinload(ProductModel.format_rules))
+        )
+        model = self.db.scalar(stmt)
+        if model is None:
+            return None
+        matched_rule = None
+        for rule in model.format_rules:
+            if rule.id == format_rule_id:
+                matched_rule = rule
+                break
+        return _to_product(model, matched_rule) if matched_rule else None
+
     def create_product_with_rule(
         self,
         *,

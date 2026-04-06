@@ -1,6 +1,7 @@
 from app.core.config import get_settings
-from app.core.exceptions import ResourceNotFoundError, ValidationAppError
+from app.core.exceptions import DocumentProcessingError, ResourceNotFoundError, ValidationAppError
 from app.infrastructure.storage.files import DocumentStorage
+from app.infrastructure.word.docx_formatter import DocxFormatter
 from app.repositories.documents.document_repository import SqlAlchemyDocumentRepository
 from app.repositories.products.product_repository import SqlAlchemyProductRepository
 
@@ -16,6 +17,7 @@ class DocumentService:
         self.document_repository = document_repository
         self.storage = DocumentStorage()
         self.settings = get_settings()
+        self.formatter = DocxFormatter()
 
     def create_upload_operation(
         self,
@@ -85,4 +87,66 @@ class DocumentService:
             file_size_bytes=file_size,
             mime_type=mime_type,
             status="RECEIVED",
+        )
+
+    def process_operation(self, *, operation_id: str, user_id: str):
+        operation = self.document_repository.get_by_id_for_user(operation_id, user_id)
+        if operation is None:
+            raise ResourceNotFoundError("La operación documental no existe para el usuario actual.")
+
+        product = self.product_repository.get_product_with_rule(
+            operation.product_id,
+            operation.format_rule_id,
+        )
+        if product is None or product.active_format_rule is None:
+            self.document_repository.update_status(
+                operation_id=operation.id,
+                status="ERROR",
+                error_message="No se pudo resolver la configuración del producto para esta operación.",
+            )
+            raise DocumentProcessingError(
+                "No se pudo resolver la configuración del producto para esta operación.",
+                code="missing_operation_product_configuration",
+            )
+
+        source_path = self.storage.resolve_relative_path(operation.original_path)
+        output_path = self.storage.resolve_relative_path(operation.output_path)
+        if not source_path.exists():
+            self.document_repository.update_status(
+                operation_id=operation.id,
+                status="ERROR",
+                error_message="El archivo original no existe en el almacenamiento temporal.",
+            )
+            raise ResourceNotFoundError("El archivo original de la operación no existe.")
+
+        self.document_repository.update_status(operation_id=operation.id, status="PROCESSING")
+        try:
+            self.formatter.format_document(
+                source_path=source_path,
+                destination_path=output_path,
+                product=product,
+                policy_number=operation.policy_number,
+            )
+        except DocumentProcessingError as exc:
+            self.document_repository.update_status(
+                operation_id=operation.id,
+                status="ERROR",
+                error_message=exc.message,
+            )
+            raise
+        except Exception as exc:
+            self.document_repository.update_status(
+                operation_id=operation.id,
+                status="ERROR",
+                error_message="Ocurrió un error inesperado durante el formateo DOCX.",
+            )
+            raise DocumentProcessingError(
+                "Ocurrió un error inesperado durante el formateo DOCX.",
+                code="unexpected_docx_processing_error",
+            ) from exc
+
+        return self.document_repository.update_status(
+            operation_id=operation.id,
+            status="COMPLETED",
+            error_message=None,
         )
