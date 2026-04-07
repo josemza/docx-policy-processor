@@ -15,15 +15,6 @@
     </div>
 
     <div class="topbar__meta">
-        <div class="topbar__meta-group">
-            <span class="status-pill status-pill--neutral">{{ environment_label | default('Local') }}</span>
-            <span class="status-pill">{{ security_label | default('JWT activa') }}</span>
-        </div>
-        <div class="topbar__actions">
-            <div class="topbar__session">
-                <span class="topbar__session-label">{{ session_hint | default('Sesión corporativa') }}</span>
-            </div>
-            <button class="btn btn--tertiary topbar__logout" type="button" data-logout-button>Cerrar sesión</button>
-        </div>
+        <button class="btn btn--tertiary topbar__logout" type="button" data-logout-button>Cerrar sesión</button>
     </div>
 </header>

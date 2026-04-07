@@ -209,6 +209,11 @@
     padding: var(--space-6);
 }
 
+.login-card {
+    width: min(100%, 440px);
+    padding: 22px;
+}
+
 .card--context {
     background: var(--surface-muted);
 }

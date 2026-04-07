@@ -15,6 +15,7 @@ function initShell() {
     const applyCollapsedState = (isCollapsed) => {
         shell.classList.toggle("is-collapsed", isCollapsed);
         sidebarToggle.setAttribute("aria-expanded", String(!isCollapsed));
+        sidebarToggle.setAttribute("aria-label", isCollapsed ? "Expandir navegación" : "Colapsar navegación");
     };
 
     applyCollapsedState(window.localStorage.getItem(SHELL_PREFERENCE_KEY) === "true");

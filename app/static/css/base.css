@@ -5,12 +5,20 @@ html {
 body {
     margin: 0;
     font-family: var(--font-sans);
+    font-size: 15px;
     color: var(--ink);
     background:
         radial-gradient(circle at top left, rgba(15, 109, 104, 0.06), transparent 24%),
         linear-gradient(180deg, var(--bg) 0%, var(--bg-strong) 100%);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+}
+
+.auth-shell {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 28px 18px;
 }
 
 * {
@@ -50,7 +58,7 @@ button {
 .empty-state__text,
 .alert__text {
     color: var(--muted);
-    line-height: 1.6;
+    line-height: 1.55;
 }
 
 .login-card__eyebrow,
@@ -60,10 +68,10 @@ button {
 .sidebar__footer-label,
 .card__eyebrow,
 .section-header__eyebrow {
-    margin: 0 0 10px;
+    margin: 0 0 8px;
     text-transform: uppercase;
     letter-spacing: 0.16em;
-    font-size: 0.72rem;
+    font-size: 0.69rem;
     color: var(--accent);
 }
 
@@ -79,6 +87,12 @@ button {
 
 .feedback-error {
     color: var(--danger);
+}
+
+@media (max-width: 720px) {
+    .auth-shell {
+        padding: 18px 14px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
