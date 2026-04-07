@@ -7,7 +7,7 @@ from typing import Iterable
 from docx import Document
 from docx.document import Document as DocumentType
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.shared import Cm, Pt
+from docx.shared import Cm, Pt, RGBColor
 
 from app.core.exceptions import DocumentProcessingError
 from app.domain.products.entities import Product
@@ -59,9 +59,9 @@ class DocxFormatter:
         )
 
         self._apply_page_setup(document, config.get("page_setup", {}))
-        self._apply_base_text_format(document, config)
+        self._apply_general_text_format(document, config.get("general_text", {}))
         self._apply_headers(document, rendered_header)
-        self._insert_title(document, rendered_title, config.get("title_rules", {}))
+        self._insert_title(document, rendered_title, config.get("title_text", {}))
 
         try:
             destination_path.parent.mkdir(parents=True, exist_ok=True)
@@ -74,53 +74,47 @@ class DocxFormatter:
 
     def _apply_page_setup(self, document: DocumentType, page_setup: dict) -> None:
         paper_size = str(page_setup.get("paper_size", "A4")).upper()
+        margins = page_setup.get("margins", {})
         width_height = PAGE_SIZE_MAP.get(paper_size)
         for section in document.sections:
             if width_height:
                 section.page_width = Cm(width_height[0])
                 section.page_height = Cm(width_height[1])
-            if "margin_top_cm" in page_setup:
-                section.top_margin = Cm(float(page_setup["margin_top_cm"]))
-            if "margin_bottom_cm" in page_setup:
-                section.bottom_margin = Cm(float(page_setup["margin_bottom_cm"]))
-            if "margin_left_cm" in page_setup:
-                section.left_margin = Cm(float(page_setup["margin_left_cm"]))
-            if "margin_right_cm" in page_setup:
-                section.right_margin = Cm(float(page_setup["margin_right_cm"]))
+            if "top_cm" in margins:
+                section.top_margin = Cm(float(margins["top_cm"]))
+            if "bottom_cm" in margins:
+                section.bottom_margin = Cm(float(margins["bottom_cm"]))
+            if "left_cm" in margins:
+                section.left_margin = Cm(float(margins["left_cm"]))
+            if "right_cm" in margins:
+                section.right_margin = Cm(float(margins["right_cm"]))
 
-    def _apply_base_text_format(self, document: DocumentType, config: dict) -> None:
-        font_defaults = config.get("font_defaults", {})
-        paragraph_defaults = config.get("paragraph_defaults", {})
-
+    def _apply_general_text_format(self, document: DocumentType, general_text: dict) -> None:
         normal_style = document.styles["Normal"]
-        if font_defaults.get("family"):
-            normal_style.font.name = str(font_defaults["family"])
-        if font_defaults.get("size_pt"):
-            normal_style.font.size = Pt(float(font_defaults["size_pt"]))
+        color = self._parse_color(general_text.get("color_hex"))
 
-        paragraph_format = normal_style.paragraph_format
-        if paragraph_defaults.get("line_spacing"):
-            paragraph_format.line_spacing = float(paragraph_defaults["line_spacing"])
-        if paragraph_defaults.get("alignment"):
-            paragraph_format.alignment = ALIGNMENT_MAP.get(
-                str(paragraph_defaults["alignment"]).lower(),
-                paragraph_format.alignment,
-            )
+        if general_text.get("font_family"):
+            normal_style.font.name = str(general_text["font_family"])
+        if general_text.get("font_size_pt"):
+            normal_style.font.size = Pt(float(general_text["font_size_pt"]))
+        if color:
+            normal_style.font.color.rgb = color
+        if general_text.get("line_spacing"):
+            normal_style.paragraph_format.line_spacing = float(general_text["line_spacing"])
 
+        uppercase = bool(general_text.get("uppercase", False))
         for paragraph in self._iter_all_paragraphs(document):
-            if paragraph.style and paragraph.style.name == "Normal":
-                if paragraph_defaults.get("line_spacing"):
-                    paragraph.paragraph_format.line_spacing = float(paragraph_defaults["line_spacing"])
-                if paragraph_defaults.get("alignment"):
-                    paragraph.paragraph_format.alignment = ALIGNMENT_MAP.get(
-                        str(paragraph_defaults["alignment"]).lower(),
-                        paragraph.paragraph_format.alignment,
-                    )
+            if general_text.get("line_spacing"):
+                paragraph.paragraph_format.line_spacing = float(general_text["line_spacing"])
             for run in paragraph.runs:
-                if font_defaults.get("family") and run.font.name is None:
-                    run.font.name = str(font_defaults["family"])
-                if font_defaults.get("size_pt") and run.font.size is None:
-                    run.font.size = Pt(float(font_defaults["size_pt"]))
+                if general_text.get("font_family"):
+                    run.font.name = str(general_text["font_family"])
+                if general_text.get("font_size_pt"):
+                    run.font.size = Pt(float(general_text["font_size_pt"]))
+                if color:
+                    run.font.color.rgb = color
+                if uppercase and run.text:
+                    run.text = run.text.upper()
 
     def _apply_headers(self, document: DocumentType, header_text: str) -> None:
         for section in document.sections:
@@ -157,7 +151,7 @@ class DocxFormatter:
         for table in list(header.tables):
             table._element.getparent().remove(table._element)
 
-    def _insert_title(self, document: DocumentType, title: str, title_rules: dict) -> None:
+    def _insert_title(self, document: DocumentType, title: str, title_text: dict) -> None:
         first_non_empty = next((p for p in document.paragraphs if p.text.strip()), None)
         if first_non_empty and first_non_empty.text.strip() == title.strip():
             title_paragraph = first_non_empty
@@ -168,7 +162,7 @@ class DocxFormatter:
             body.insert(0, title_paragraph._p)
 
         title_paragraph.style = document.styles["Title"]
-        alignment = title_rules.get("alignment")
+        alignment = title_text.get("alignment")
         if alignment:
             title_paragraph.paragraph_format.alignment = ALIGNMENT_MAP.get(
                 str(alignment).lower(),
@@ -176,13 +170,14 @@ class DocxFormatter:
             )
 
         for run in title_paragraph.runs:
-            if title_rules.get("bold") is not None:
-                run.bold = bool(title_rules["bold"])
-            case_rule = str(title_rules.get("case", "")).lower()
-            if case_rule == "upper":
+            if title_text.get("font_family"):
+                run.font.name = str(title_text["font_family"])
+            if title_text.get("font_size_pt"):
+                run.font.size = Pt(float(title_text["font_size_pt"]))
+            if title_text.get("bold") is not None:
+                run.bold = bool(title_text["bold"])
+            if bool(title_text.get("uppercase", False)) and run.text:
                 run.text = run.text.upper()
-            elif case_rule == "title":
-                run.text = run.text.title()
 
     def _iter_all_paragraphs(self, document: DocumentType) -> Iterable:
         for paragraph in document.paragraphs:
@@ -199,3 +194,8 @@ class DocxFormatter:
             return context.get(key, match.group(0))
 
         return TOKEN_PATTERN.sub(replace, template)
+
+    def _parse_color(self, color_value: str | None):
+        if not color_value:
+            return None
+        return RGBColor.from_string(str(color_value).replace("#", "").upper())

@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="admin-page">
+    <header class="admin-hero card card--context">
+        <div class="admin-hero__copy card__header-copy">
+            <p class="section-label card__eyebrow">Panel administrativo</p>
+            <h2 class="card__title">Reglas de formato</h2>
+            <p class="card__description">
+                Administra configuraciones versionadas por producto, revisa su vigencia y ajusta el formato base
+                sin interferir con el flujo operativo de generación documental.
+            </p>
+        </div>
+        <div class="admin-hero__meta">
+            <div class="admin-hero__meta-row">
+                <span class="badge badge--neutral">Configuración interna</span>
+                <span class="badge badge--info" data-rules-status>Sin producto</span>
+            </div>
+            <div class="admin-hero__actions">
+                <a class="secondary-button btn btn--secondary" href="/app">Volver a nuevo documento</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="admin-summary-grid">
+        <article class="card card--context admin-summary-card">
+            <p class="section-label card__eyebrow">Cobertura</p>
+            <strong class="admin-summary-card__value" data-rules-summary-products>0</strong>
+            <span class="admin-summary-card__label">Productos configurados</span>
+        </article>
+        <article class="card card--context admin-summary-card">
+            <p class="section-label card__eyebrow">Estado vigente</p>
+            <strong class="admin-summary-card__value" data-rules-summary-active>0</strong>
+            <span class="admin-summary-card__label">Reglas activas visibles</span>
+        </article>
+        <article class="card card--context admin-summary-card">
+            <p class="section-label card__eyebrow">Versión seleccionada</p>
+            <strong class="admin-summary-card__value" data-rules-summary-version>--</strong>
+            <span class="admin-summary-card__label">Versión en edición</span>
+        </article>
+        <article class="card card--state admin-summary-card admin-summary-card--wide">
+            <p class="section-label card__eyebrow">Contexto de edición</p>
+            <p class="admin-summary-card__context" data-rules-selection-context>
+                Selecciona un producto para revisar reglas vigentes, versiones anteriores y configuración base.
+            </p>
+        </article>
+    </section>
+
+    <section class="admin-workspace">
+        <aside class="admin-sidebar card card--context">
+            <div class="section-header admin-sidebar__header">
+                <div class="section-header__copy">
+                    <p class="section-label section-header__eyebrow">Catálogo y reglas</p>
+                    <h3 class="section-header__title">Explorador de configuración</h3>
+                </div>
+                <span class="status-pill badge" data-products-status>Cargando catálogo...</span>
+            </div>
+
+            <div class="admin-sidebar__controls">
+                <label class="field form-field">
+                    <span class="form-field__label">Producto</span>
+                    <select class="form-control" name="product_id" data-product-select required>
+                        <option value="">Selecciona un producto</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="admin-product-context state-panel" data-product-summary>
+                <div class="empty-state empty-state--compact">
+                    <strong>Sin producto seleccionado</strong>
+                    <span class="empty-state__text">Selecciona un producto para ver título, encabezado y configuración base.</span>
+                </div>
+            </div>
+
+            <div class="admin-rules-list-wrap">
+                <div class="section-header admin-rules-list-wrap__header">
+                    <div class="section-header__copy">
+                        <p class="section-label section-header__eyebrow">Versiones</p>
+                        <h4 class="section-header__title">Listado de reglas</h4>
+                    </div>
+                    <button class="secondary-button btn btn--secondary" type="button" data-rule-reset-button>Nueva regla</button>
+                </div>
+
+                <div class="rules-list" data-rules-list>
+                    <div class="empty-state empty-state--compact">
+                        <strong>Sin reglas visibles</strong>
+                        <span class="empty-state__text">Selecciona un producto para cargar sus reglas.</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <section class="admin-editor-column">
+            <article class="card card--operational admin-editor-card">
+                <div class="section-header admin-editor-card__header">
+                    <div class="section-header__copy">
+                        <p class="section-label section-header__eyebrow">Edición de regla</p>
+                        <h3 class="section-header__title">Configuración base de formato</h3>
+                    </div>
+                    <span class="badge badge--pending" data-rule-editor-state>Nueva regla</span>
+                </div>
+
+                <form class="rules-form admin-rules-form" data-rule-form>
+                    <input type="hidden" name="rule_id">
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section__header">
+                            <h4>Formato de página</h4>
+                            <p>Define hoja y márgenes base aplicables al documento final.</p>
+                        </div>
+                        <div class="form-grid form-grid--two">
+                            <label class="field form-field">
+                                <span class="form-field__label">Tamaño de hoja</span>
+                                <select class="form-control" name="paper_size" required>
+                                    <option value="A4">A4</option>
+                                    <option value="LETTER">Letter</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="form-grid form-grid--four">
+                            <label class="field form-field">
+                                <span class="form-field__label">Margen superior</span>
+                                <input class="form-control" type="number" step="0.1" min="0.1" name="margin_top_cm" required>
+                            </label>
+                            <label class="field form-field">
+                                <span class="form-field__label">Margen inferior</span>
+                                <input class="form-control" type="number" step="0.1" min="0.1" name="margin_bottom_cm" required>
+                            </label>
+                            <label class="field form-field">
+                                <span class="form-field__label">Margen izquierdo</span>
+                                <input class="form-control" type="number" step="0.1" min="0.1" name="margin_left_cm" required>
+                            </label>
+                            <label class="field form-field">
+                                <span class="form-field__label">Margen derecho</span>
+                                <input class="form-control" type="number" step="0.1" min="0.1" name="margin_right_cm" required>
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section__header">
+                            <h4>Texto general</h4>
+                            <p>Controla fuente, tamaño, interlineado, color y comportamiento del contenido principal.</p>
+                        </div>
+                        <div class="form-grid form-grid--four">
+                            <label class="field form-field">
+                                <span class="form-field__label">Fuente general</span>
+                                <input class="form-control" type="text" name="general_font_family" required>
+                            </label>
+                            <label class="field form-field">
+                                <span class="form-field__label">Tamaño general</span>
+                                <input class="form-control" type="number" step="0.5" min="1" name="general_font_size_pt" required>
+                            </label>
+                            <label class="field form-field">
+                                <span class="form-field__label">Interlineado</span>
+                                <input class="form-control" type="number" step="0.05" min="0.5" name="general_line_spacing" required>
+                            </label>
+                            <label class="field form-field">
+                                <span class="form-field__label">Color general</span>
+                                <input class="form-control" type="text" name="general_color_hex" placeholder="#000000" required>
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section__header">
+                            <h4>Título</h4>
+                            <p>Define el tratamiento visual del título insertado según el producto.</p>
+                        </div>
+                        <div class="form-grid form-grid--three">
+                            <label class="field form-field">
+                                <span class="form-field__label">Fuente título</span>
+                                <input class="form-control" type="text" name="title_font_family" required>
+                            </label>
+                            <label class="field form-field">
+                                <span class="form-field__label">Tamaño título</span>
+                                <input class="form-control" type="number" step="0.5" min="1" name="title_font_size_pt" required>
+                            </label>
+                            <label class="field form-field">
+                                <span class="form-field__label">Alineación título</span>
+                                <select class="form-control" name="title_alignment" required>
+                                    <option value="left">Izquierda</option>
+                                    <option value="center">Centro</option>
+                                    <option value="right">Derecha</option>
+                                    <option value="justify">Justificado</option>
+                                </select>
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="admin-form-section">
+                        <div class="admin-form-section__header">
+                            <h4>Opciones de activación</h4>
+                            <p>Controla mayúsculas, negrita del título y vigencia de la versión editada.</p>
+                        </div>
+                        <div class="form-grid form-grid--checks">
+                            <label class="check-field">
+                                <input type="checkbox" name="general_uppercase">
+                                <span>Texto general en mayúscula</span>
+                            </label>
+                            <label class="check-field">
+                                <input type="checkbox" name="title_uppercase">
+                                <span>Título en mayúscula</span>
+                            </label>
+                            <label class="check-field">
+                                <input type="checkbox" name="title_bold" checked>
+                                <span>Título en negrita</span>
+                            </label>
+                            <label class="check-field">
+                                <input type="checkbox" name="rule_active" checked>
+                                <span>Dejar como regla activa</span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <div class="admin-editor-actions">
+                        <button class="primary-button btn btn--primary" type="submit" data-rule-submit-button>Guardar regla</button>
+                        <button class="danger-button btn btn--danger" type="button" data-rule-delete-button disabled>Desactivar regla</button>
+                    </div>
+                </form>
+
+                <p class="form-feedback alert alert--info" data-rule-feedback aria-live="polite"></p>
+            </article>
+
+            <article class="card card--state admin-meta-card">
+                <div class="section-header">
+                    <div class="section-header__copy">
+                        <p class="section-label section-header__eyebrow">Contexto administrativo</p>
+                        <h3 class="section-header__title">Sesión y control</h3>
+                    </div>
+                    <span class="badge badge--neutral">Administración</span>
+                </div>
+
+                <table class="data-table data-table--compact">
+                    <thead>
+                        <tr>
+                            <th>Dato</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Usuario</td>
+                            <td data-session-user>Validando sesión activa...</td>
+                        </tr>
+                        <tr>
+                            <td>Producto en foco</td>
+                            <td data-current-product-label>Sin producto seleccionado</td>
+                        </tr>
+                        <tr>
+                            <td>Regla en edición</td>
+                            <td data-current-rule-label>Nueva regla</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </article>
+        </section>
+    </section>
+</section>
+<script>
+    window.APP_SESSION = {
+        authBaseUrl: "{{ session_api_base }}",
+        productsBaseUrl: "/api/v1/products",
+        documentsBaseUrl: "/api/v1/documents",
+        formatRulesBaseUrl: "/api/v1/format-rules"
+    };
+</script>
+{% endblock %}

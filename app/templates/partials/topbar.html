@@ -1,10 +1,29 @@
 <header class="topbar">
-    <div>
-        <p class="topbar__eyebrow">Despliegue local</p>
-        <h1 class="topbar__title">{{ page_title }}</h1>
+    <div class="topbar__intro">
+        <nav class="topbar__breadcrumbs" aria-label="Breadcrumb">
+            <ol>
+                {% for crumb in breadcrumbs | default(['Workspace', page_title]) %}
+                    <li class="{% if loop.last %}is-current{% endif %}">{{ crumb }}</li>
+                {% endfor %}
+            </ol>
+        </nav>
+        <div class="topbar__heading">
+            <p class="topbar__eyebrow">{{ deployment_label | default('Despliegue local') }}</p>
+            <h1 class="topbar__title">{{ page_title }}</h1>
+            <p class="topbar__subtitle">{{ page_subtitle | default('Operación documental sobre prepólizas Word.') }}</p>
+        </div>
     </div>
+
     <div class="topbar__meta">
-        <span class="status-pill">Sprint 1</span>
-        <a class="ghost-link" href="/login">Cerrar sesión</a>
+        <div class="topbar__meta-group">
+            <span class="status-pill status-pill--neutral">{{ environment_label | default('Local') }}</span>
+            <span class="status-pill">{{ security_label | default('JWT activa') }}</span>
+        </div>
+        <div class="topbar__actions">
+            <div class="topbar__session">
+                <span class="topbar__session-label">{{ session_hint | default('Sesión corporativa') }}</span>
+            </div>
+            <button class="btn btn--tertiary topbar__logout" type="button" data-logout-button>Cerrar sesión</button>
+        </div>
     </div>
 </header>

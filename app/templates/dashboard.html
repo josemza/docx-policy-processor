@@ -1,50 +1,197 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="hero-panel">
-    <div>
-        <p class="section-label">Shell base</p>
-        <h2>Panel principal listo para crecer por dominios</h2>
-        <p>
-            El shell ya usa sesión persistida en frontend, validación de tokens y una ruta protegida
-            para consultar el usuario autenticado.
-        </p>
-    </div>
-    <div class="hero-panel__actions">
-        <a class="secondary-button" href="/api/v1/health">Ver health check</a>
-        <button class="primary-button" type="button" data-logout-button>Cerrar sesión</button>
-    </div>
-</section>
+<section class="workflow-shell">
+    <section class="workflow-stepper-card card card--state">
+        <div class="card-header-row workflow-stepper-card__header section-header">
+            <div class="section-header__copy">
+                <p class="section-label section-header__eyebrow">Workflow documental</p>
+                <h2 class="section-header__title">Nuevo documento</h2>
+            </div>
+            <span class="status-pill badge" data-products-status>Cargando catálogo...</span>
+        </div>
 
-<section class="grid-panels">
-    <article class="content-card">
-        <p class="section-label">Dominio documental</p>
-        <h3>Módulo pendiente de implementación</h3>
-        <p>
-            Aquí vivirá el flujo de carga, validación, procesamiento DOCX y exportación.
-            En este sprint se habilita la capa de acceso seguro al módulo.
-        </p>
-    </article>
+        <ol class="workflow-stepper" data-workflow-stepper>
+            <li class="workflow-step is-current" data-step="upload">
+                <span class="workflow-step__index">1</span>
+                <div class="workflow-step__content">
+                    <strong>Carga</strong>
+                    <span>Archivo DOCX</span>
+                </div>
+            </li>
+            <li class="workflow-step" data-step="product">
+                <span class="workflow-step__index">2</span>
+                <div class="workflow-step__content">
+                    <strong>Producto</strong>
+                    <span>Configuración aplicable</span>
+                </div>
+            </li>
+            <li class="workflow-step" data-step="validation">
+                <span class="workflow-step__index">3</span>
+                <div class="workflow-step__content">
+                    <strong>Validación</strong>
+                    <span>Control preliminar</span>
+                </div>
+            </li>
+            <li class="workflow-step" data-step="processing">
+                <span class="workflow-step__index">4</span>
+                <div class="workflow-step__content">
+                    <strong>Procesamiento</strong>
+                    <span>Motor DOCX</span>
+                </div>
+            </li>
+            <li class="workflow-step" data-step="download">
+                <span class="workflow-step__index">5</span>
+                <div class="workflow-step__content">
+                    <strong>Descarga</strong>
+                    <span>Salida final</span>
+                </div>
+            </li>
+        </ol>
+    </section>
 
-    <article class="content-card">
-        <p class="section-label">Arquitectura</p>
-        <h3>Capas separadas desde el arranque</h3>
-        <ul class="feature-list">
-            <li><strong>API:</strong> transporte HTTP y versionado.</li>
-            <li><strong>Services:</strong> casos de uso y orquestación.</li>
-            <li><strong>Repositories:</strong> persistencia abstracta.</li>
-            <li><strong>Infrastructure:</strong> DB, templates y storage.</li>
-            <li><strong>Core:</strong> config, seguridad y logging.</li>
-        </ul>
-    </article>
+    <section class="workflow-layout">
+        <div class="workflow-main-column">
+            <article class="content-card card card--operational workflow-card workflow-card--primary">
+                <div class="card-header-row workflow-card__header section-header">
+                    <div class="section-header__copy">
+                        <p class="section-label section-header__eyebrow">Datos del documento</p>
+                        <h3 class="section-header__title">Preparar operación documental</h3>
+                    </div>
+                    <span class="status-pill status-pill--neutral badge badge--neutral" data-validation-badge>Faltan datos</span>
+                </div>
 
-    <article class="content-card content-card--wide">
-        <p class="section-label">Sesión actual</p>
-        <h3>Integración frontend vanilla</h3>
-        <p data-session-user>Validando sesión activa...</p>
-    </article>
+                <form id="document-form-main" class="document-form document-workflow-form" data-document-form>
+                    <div class="form-grid form-grid--two">
+                        <label class="field form-field">
+                            <span class="form-field__label">Producto</span>
+                            <select class="form-control" name="product_id" data-product-select required>
+                                <option value="">Selecciona un producto</option>
+                            </select>
+                        </label>
+
+                        <label class="field form-field">
+                            <span class="form-field__label">Número de póliza</span>
+                            <input class="form-control" type="text" name="policy_number" placeholder="POL-001" required>
+                        </label>
+                    </div>
+
+                    <label class="field form-field field--file field--file-enhanced">
+                        <span class="form-field__label">Prepóliza .docx</span>
+                        <input class="form-control form-control--file" type="file" name="file" accept=".docx" required>
+                        <small class="field-hint form-hint">Solo se aceptan documentos Word en formato .docx.</small>
+                    </label>
+                </form>
+
+                <div class="document-meta state-panel" data-file-meta>
+                    <div class="document-meta__empty empty-state empty-state--compact">
+                        <strong>Sin archivo cargado</strong>
+                        <span class="empty-state__text">Selecciona una prepóliza para validar nombre, extensión y tamaño.</span>
+                    </div>
+                </div>
+
+                <div class="inline-status-panel" data-document-feedback-panel>
+                    <p class="form-feedback alert alert--info" data-document-feedback aria-live="polite" role="status"></p>
+                    <p class="helper-feedback alert alert--info" data-validation-feedback aria-live="polite">Completa producto, número de póliza y archivo para habilitar el procesamiento.</p>
+                </div>
+            </article>
+
+            <article class="content-card card card--operational workflow-card workflow-card--actions">
+                <div class="card__header-copy">
+                    <p class="section-label card__eyebrow">Acciones</p>
+                    <h3 class="card__title">Ejecutar flujo</h3>
+                    <p class="card__description">Registra primero la operación y luego ejecuta el formateo sobre la prepóliza cargada.</p>
+                </div>
+
+                <div class="workflow-actions">
+                    <button class="secondary-button btn btn--secondary" type="submit" form="document-form-main" data-register-button>Guardar registro</button>
+                    <button class="primary-button btn btn--primary workflow-actions__primary" type="button" data-process-button disabled>Aplicar formato y generar Word</button>
+                    <button class="ghost-button btn btn--tertiary" type="button" data-clear-document-button>Limpiar formulario</button>
+                </div>
+            </article>
+
+            <article class="content-card card card--result workflow-card workflow-card--result">
+                <div class="card-header-row workflow-card__header section-header">
+                    <div class="section-header__copy">
+                        <p class="section-label section-header__eyebrow">Resultado del procesamiento</p>
+                        <h3 class="section-header__title">Estado operativo</h3>
+                    </div>
+                    <span class="status-pill status-pill--neutral badge badge--pending" data-result-badge>Pendiente</span>
+                </div>
+
+                <div class="result-panel state-panel" data-result-panel>
+                    <div class="result-panel__state result-panel__state--pending empty-state empty-state--compact">
+                        <strong>Sin procesamiento activo</strong>
+                        <p class="empty-state__text">Cuando registres y proceses una prepóliza, aquí verás el estado, el resumen aplicado y la disponibilidad de salida.</p>
+                    </div>
+                </div>
+
+                <div class="result-actions">
+                    <button class="secondary-button btn btn--secondary" type="button" data-download-button disabled>Descargar Word final</button>
+                    <button class="ghost-button btn btn--tertiary" type="button" data-reset-result-button>Procesar otro documento</button>
+                </div>
+            </article>
+        </div>
+
+        <aside class="workflow-side-column">
+            <article class="content-card card card--context workflow-card">
+                <p class="section-label card__eyebrow">Configuración aplicable</p>
+                <h3 class="card__title">Producto y regla base</h3>
+                <div class="product-summary" data-product-summary>
+                    <p>Selecciona un producto para ver el título esperado, el encabezado aplicable y el resumen de formato.</p>
+                </div>
+            </article>
+
+            <article class="content-card card card--context workflow-card">
+                <div class="card-header-row section-header workflow-card__header">
+                    <div class="section-header__copy">
+                        <p class="section-label section-header__eyebrow">Trazabilidad de la operación</p>
+                        <h3 class="section-header__title">Contexto inmediato</h3>
+                    </div>
+                    <span class="status-pill badge badge--pending" data-operation-status-badge>Sin iniciar</span>
+                </div>
+                <div class="traceability-panel" data-traceability-panel>
+                    <dl class="summary-list summary-list--traceability">
+                        <div><dt>Usuario</dt><dd data-session-user>Validando sesión activa...</dd></div>
+                        <div><dt>Producto</dt><dd data-operation-product>Sin producto seleccionado</dd></div>
+                        <div><dt>Póliza</dt><dd data-operation-policy>Sin número de póliza</dd></div>
+                        <div><dt>Archivo origen</dt><dd data-operation-origin>Sin archivo cargado</dd></div>
+                        <div><dt>Salida</dt><dd data-operation-output>Pendiente</dd></div>
+                        <div><dt>Registrado</dt><dd data-operation-created-at>Sin registrar</dd></div>
+                        <div><dt>Última actualización</dt><dd data-operation-updated-at>Sin cambios</dd></div>
+                        <div><dt>ID operación</dt><dd data-operation-id>Pendiente</dd></div>
+                        <div><dt>Estado</dt><dd data-operation-status>Sin iniciar</dd></div>
+                        <div><dt>Duración / tiempo</dt><dd data-operation-duration>Disponible cuando exista una ejecución</dd></div>
+                    </dl>
+                    <p class="traceability-note alert alert--info" data-operation-observation aria-live="polite">Cuando exista una operación activa, aquí verás su contexto, estado y observaciones operativas.</p>
+                </div>
+            </article>
+
+            <article class="content-card card card--context workflow-card">
+                <div class="card-header-row section-header workflow-card__header">
+                    <div class="section-header__copy">
+                        <p class="section-label section-header__eyebrow">Últimas operaciones</p>
+                        <h3 class="section-header__title">Historial reciente</h3>
+                    </div>
+                    <span class="status-pill badge badge--pending" data-history-status-badge>Sin registros</span>
+                </div>
+                <div class="recent-operations" data-recent-operations>
+                    <div class="empty-state empty-state--compact">
+                        <strong>Sin historial cargado</strong>
+                        <span class="empty-state__text">Esta fase prepara el espacio para operaciones recientes sin abandonar el flujo principal.</span>
+                    </div>
+                </div>
+            </article>
+        </aside>
+    </section>
 </section>
 <script>
-    window.APP_SESSION = { authBaseUrl: "{{ session_api_base }}" };
+    window.APP_SESSION = {
+        authBaseUrl: "{{ session_api_base }}",
+        productsBaseUrl: "/api/v1/products",
+        documentsBaseUrl: "/api/v1/documents",
+        formatRulesBaseUrl: "/api/v1/format-rules"
+    };
 </script>
 {% endblock %}
+

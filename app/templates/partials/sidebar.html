@@ -3,26 +3,49 @@
         <div class="sidebar__logo">FP</div>
         <div class="sidebar__brand-copy">
             <strong>Formateador</strong>
-            <span>Prepólizas Word</span>
+            <span>Operación documental</span>
         </div>
     </div>
 
-    <nav class="sidebar__nav" aria-label="Principal">
-        <a class="nav-link {% if active_nav == 'dashboard' %}is-active{% endif %}" href="/app">
-            <span class="nav-link__icon">01</span>
-            <span class="nav-link__label">Panel principal</span>
-        </a>
-        <a class="nav-link is-disabled" href="#" aria-disabled="true">
-            <span class="nav-link__icon">02</span>
-            <span class="nav-link__label">Formatear póliza</span>
-        </a>
-        <a class="nav-link is-disabled" href="#" aria-disabled="true">
-            <span class="nav-link__icon">03</span>
-            <span class="nav-link__label">Trazabilidad</span>
-        </a>
-    </nav>
+    <div class="sidebar__section">
+        <p class="sidebar__section-label">Workspace</p>
+        <nav class="sidebar__nav" aria-label="Principal">
+            <span class="nav-link nav-link--placeholder is-disabled" aria-disabled="true">
+                <span class="nav-link__icon">00</span>
+                <span class="nav-link__label">Inicio</span>
+            </span>
+            <a class="nav-link {% if active_nav == 'dashboard' %}is-active{% endif %}" href="/app" {% if active_nav == 'dashboard' %}aria-current="page"{% endif %}>
+                <span class="nav-link__icon">01</span>
+                <span class="nav-link__label">Nuevo documento</span>
+            </a>
+            <a class="nav-link {% if active_nav == 'format_rules' %}is-active{% endif %}" href="/app/format-rules" {% if active_nav == 'format_rules' %}aria-current="page"{% endif %}>
+                <span class="nav-link__icon">02</span>
+                <span class="nav-link__label">Reglas de formato</span>
+            </a>
+        </nav>
+    </div>
 
-    <button class="sidebar__toggle" type="button" data-sidebar-toggle aria-label="Colapsar navegación">
+    <div class="sidebar__section sidebar__section--secondary">
+        <p class="sidebar__section-label">Operación</p>
+        <div class="sidebar__nav" aria-label="Secundaria">
+            <span class="nav-link nav-link--placeholder is-disabled" aria-disabled="true">
+                <span class="nav-link__icon">03</span>
+                <span class="nav-link__label">Trazabilidad</span>
+            </span>
+            <span class="nav-link nav-link--placeholder is-disabled" aria-disabled="true">
+                <span class="nav-link__icon">04</span>
+                <span class="nav-link__label">Configuración</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="sidebar__footer">
+        <p class="sidebar__footer-label">Entorno</p>
+        <strong>Local · MVP interno</strong>
+        <span>Shell corporativo preparado para crecer por módulos y vistas.</span>
+    </div>
+
+    <button class="sidebar__toggle" type="button" data-sidebar-toggle aria-label="Colapsar navegación" aria-expanded="true">
         <span></span>
         <span></span>
     </button>

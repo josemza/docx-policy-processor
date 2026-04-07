@@ -1,6 +1,7 @@
 import json
+from datetime import datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.domain.products.entities import FormatRule, Product
@@ -53,6 +54,15 @@ class SqlAlchemyProductRepository:
             products.append(_to_product(model, active_rule))
         return products
 
+    def get_product(self, product_id: str) -> Product | None:
+        stmt = select(ProductModel).where(ProductModel.id == product_id).options(
+            selectinload(ProductModel.format_rules)
+        )
+        model = self.db.scalar(stmt)
+        if model is None:
+            return None
+        return _to_product(model, self._resolve_active_rule(model.format_rules))
+
     def get_active_product(self, product_id: str) -> Product | None:
         stmt = (
             select(ProductModel)
@@ -73,12 +83,79 @@ class SqlAlchemyProductRepository:
         model = self.db.scalar(stmt)
         if model is None:
             return None
-        matched_rule = None
-        for rule in model.format_rules:
-            if rule.id == format_rule_id:
-                matched_rule = rule
-                break
+        matched_rule = next((rule for rule in model.format_rules if rule.id == format_rule_id), None)
         return _to_product(model, matched_rule) if matched_rule else None
+
+    def list_format_rules(self, product_id: str) -> list[FormatRule]:
+        stmt = (
+            select(FormatRuleModel)
+            .where(FormatRuleModel.product_id == product_id)
+            .order_by(FormatRuleModel.version.desc())
+        )
+        return [_to_format_rule(model) for model in self.db.scalars(stmt)]
+
+    def get_format_rule(self, rule_id: str) -> FormatRule | None:
+        model = self.db.get(FormatRuleModel, rule_id)
+        return _to_format_rule(model) if model else None
+
+    def create_format_rule(
+        self,
+        *,
+        product_id: str,
+        configuration_json: str,
+        active: bool = True,
+    ) -> FormatRule:
+        version = self._next_version(product_id)
+        if active:
+            self._deactivate_rules(product_id)
+        model = FormatRuleModel(
+            product_id=product_id,
+            version=version,
+            configuration_json=configuration_json,
+            active=active,
+            effective_from=datetime.now(timezone.utc),
+        )
+        self.db.add(model)
+        self.db.commit()
+        self.db.refresh(model)
+        return _to_format_rule(model)
+
+    def update_format_rule_versioned(
+        self,
+        *,
+        rule_id: str,
+        configuration_json: str,
+        active: bool = True,
+    ) -> FormatRule | None:
+        current = self.db.get(FormatRuleModel, rule_id)
+        if current is None:
+            return None
+        current.active = False
+        self.db.add(current)
+        self.db.flush()
+        new_rule = FormatRuleModel(
+            product_id=current.product_id,
+            version=self._next_version(current.product_id),
+            configuration_json=configuration_json,
+            active=active,
+            effective_from=datetime.now(timezone.utc),
+        )
+        if active:
+            self._deactivate_rules(current.product_id)
+        self.db.add(new_rule)
+        self.db.commit()
+        self.db.refresh(new_rule)
+        return _to_format_rule(new_rule)
+
+    def deactivate_format_rule(self, rule_id: str) -> FormatRule | None:
+        model = self.db.get(FormatRuleModel, rule_id)
+        if model is None:
+            return None
+        model.active = False
+        self.db.add(model)
+        self.db.commit()
+        self.db.refresh(model)
+        return _to_format_rule(model)
 
     def create_product_with_rule(
         self,
@@ -113,6 +190,20 @@ class SqlAlchemyProductRepository:
 
     def count_products(self) -> int:
         return len(self.db.scalars(select(ProductModel)).all())
+
+    def _next_version(self, product_id: str) -> int:
+        stmt = select(func.max(FormatRuleModel.version)).where(FormatRuleModel.product_id == product_id)
+        current = self.db.scalar(stmt)
+        return int(current or 0) + 1
+
+    def _deactivate_rules(self, product_id: str) -> None:
+        stmt = select(FormatRuleModel).where(
+            FormatRuleModel.product_id == product_id,
+            FormatRuleModel.active.is_(True),
+        )
+        for model in self.db.scalars(stmt):
+            model.active = False
+            self.db.add(model)
 
     @staticmethod
     def _resolve_active_rule(rules: list[FormatRuleModel]) -> FormatRuleModel | None:

@@ -42,7 +42,7 @@ def test_upload_rejects_non_docx(client, auth_headers):
 
 
 
-def test_process_docx_updates_header_title_and_preserves_table(
+def test_process_docx_updates_header_title_and_preserves_table_and_emphasis(
     client,
     auth_headers,
     sample_docx_bytes,
@@ -83,6 +83,9 @@ def test_process_docx_updates_header_title_and_preserves_table(
     formatted = Document(output_path)
     assert formatted.sections[0].header.paragraphs[0].text == "Header POL-003"
     assert formatted.paragraphs[0].text == "TITULO VIDA TEST"
+    body_run = formatted.paragraphs[1].runs[0]
+    assert body_run.bold is True
+    assert body_run.underline is True
     assert formatted.tables[0].cell(0, 0).text == "Celda 1"
     assert formatted.tables[0].cell(0, 1).text == "Celda 2"
     assert len(formatted.tables) == 1

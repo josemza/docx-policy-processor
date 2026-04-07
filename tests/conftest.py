@@ -68,14 +68,22 @@ def client() -> Generator[TestClient, None, None]:
                     {
                         "page_setup": {
                             "paper_size": "A4",
-                            "margin_top_cm": 2.5,
-                            "margin_bottom_cm": 2.5,
-                            "margin_left_cm": 2.0,
-                            "margin_right_cm": 2.0,
+                            "margins": {"top_cm": 2.5, "bottom_cm": 2.5, "left_cm": 2.0, "right_cm": 2.0},
                         },
-                        "font_defaults": {"family": "Arial", "size_pt": 10},
-                        "paragraph_defaults": {"line_spacing": 1.15, "alignment": "justify"},
-                        "title_rules": {"alignment": "center", "bold": True, "case": "upper"},
+                        "general_text": {
+                            "font_family": "Arial",
+                            "font_size_pt": 10,
+                            "line_spacing": 1.15,
+                            "uppercase": False,
+                            "color_hex": "000000",
+                        },
+                        "title_text": {
+                            "font_family": "Arial",
+                            "font_size_pt": 14,
+                            "uppercase": True,
+                            "alignment": "center",
+                            "bold": True,
+                        },
                     }
                 ),
                 active=True,
@@ -107,7 +115,10 @@ def sample_docx_bytes() -> bytes:
     document = Document()
     section = document.sections[0]
     section.header.paragraphs[0].text = "Header original"
-    document.add_paragraph("Contenido base de la póliza")
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run("Contenido base de la póliza")
+    run.bold = True
+    run.underline = True
     table = document.add_table(rows=1, cols=2)
     table.cell(0, 0).text = "Celda 1"
     table.cell(0, 1).text = "Celda 2"

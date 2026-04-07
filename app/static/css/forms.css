@@ -1,0 +1,174 @@
+.login-form,
+.document-form,
+.rules-form {
+    display: grid;
+    gap: 18px;
+    margin-top: 24px;
+}
+
+.form-field,
+.field {
+    display: grid;
+    gap: var(--space-2);
+}
+
+.form-field__label,
+.field > span {
+    font-size: 0.92rem;
+    color: var(--ink);
+    font-weight: 600;
+}
+
+.form-control,
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+    min-height: var(--control-height);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink);
+    transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.form-control::placeholder,
+.field input::placeholder,
+.field textarea::placeholder {
+    color: var(--muted);
+}
+
+.form-control:focus,
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+    outline: none;
+    border-color: rgba(15, 109, 104, 0.35);
+    box-shadow: var(--shadow-focus);
+}
+
+.form-control:disabled,
+.field input:disabled,
+.field select:disabled,
+.field textarea:disabled {
+    background: rgba(24, 33, 43, 0.03);
+    color: var(--muted);
+    cursor: not-allowed;
+}
+
+.form-field.is-error .form-control,
+.field.is-error input,
+.field.is-error select,
+.field.is-error textarea {
+    border-color: rgba(173, 64, 51, 0.45);
+    box-shadow: 0 0 0 3px rgba(173, 64, 51, 0.1);
+}
+
+.form-hint,
+.field-hint,
+.helper-feedback {
+    color: var(--muted);
+    font-size: 0.84rem;
+    line-height: 1.5;
+}
+
+.form-validation,
+.field-validation {
+    font-size: 0.84rem;
+    line-height: 1.5;
+}
+
+.form-validation--error,
+.field-validation--error {
+    color: var(--danger);
+}
+
+.form-validation--success,
+.field-validation--success {
+    color: var(--success);
+}
+
+.form-control--file,
+.field--file input {
+    padding: 12px 14px;
+    background: var(--surface-strong);
+}
+
+.field--file-enhanced {
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.58);
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.field--file-enhanced:focus-within {
+    border-color: rgba(15, 109, 104, 0.35);
+    box-shadow: var(--shadow-focus);
+}
+
+.form-grid {
+    display: grid;
+    gap: 14px;
+}
+
+.form-grid--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-grid--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.form-grid--four {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.form-grid--checks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.check-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.74);
+}
+
+.check-field:focus-within {
+    border-color: rgba(15, 109, 104, 0.35);
+    box-shadow: var(--shadow-focus);
+}
+
+.check-field input {
+    width: auto;
+    accent-color: var(--accent);
+}
+
+.compact-grid {
+    align-items: start;
+}
+
+@media (max-width: 1100px) {
+    .form-grid--four,
+    .form-grid--three {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid--checks,
+    .form-grid--two {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .form-grid--checks,
+    .form-grid--two {
+        grid-template-columns: 1fr;
+    }
+}
